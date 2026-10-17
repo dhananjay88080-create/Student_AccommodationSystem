@@ -1,0 +1,163 @@
+@model IEnumerable<StudentAccommodationSystem.Models.Booking>
+
+@{
+    ViewData["Title"] = "My bookings";
+}
+
+<section class="container py-4 py-md-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <p class="text-uppercase small fw-semibold text-muted mb-1">Student dashboard</p>
+            <h1 class="h2 mb-1">My bookings</h1>
+            <p class="text-muted mb-0">Track your accommodation requests and booking status.</p>
+        </div>
+        <a asp-controller="Property" asp-action="Index" class="btn btn-outline-primary">Find a PG</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body text-center py-5">
+                <h2 class="h5">No booking requests yet</h2>
+                <p class="text-muted mb-3">When you request a room, it will appear here.</p>
+                <a asp-controller="Property" asp-action="Index" class="btn btn-primary">Browse accommodation</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-3 py-3">Property</th>
+                            <th class="py-3">Room</th>
+                            <th class="py-3">Requested dates</th>
+                            <th class="py-3">Status</th>
+                            <th class="py-3">Agreement</th>
+                            <th class="py-3">Owner contact</th>
+                            <th class="py-3">Payment details</th>
+                            <th class="text-end px-3 py-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var b in Model)
+                    {
+                        var canDelete = b.RentalAgreement == null && b.Status != StudentAccommodationSystem.Models.BookingStatus.Approved && b.Status != StudentAccommodationSystem.Models.BookingStatus.Completed;
+                        <tr>
+                            <td class="px-3 py-3">
+                                <div class="fw-semibold">@b.Property.Name</div>
+                                <div class="small text-muted">Requested @b.RequestDate.ToLocalTime().ToString("dd MMM yyyy")</div>
+                            </td>
+                            <td class="py-3">@b.Room.RoomNumber</td>
+                            <td class="py-3 text-nowrap">@b.RequestedMoveIn.ToString("dd MMM yyyy") – @b.RequestedMoveOut.ToString("dd MMM yyyy")</td>
+                            <td class="py-3">
+                                @{
+                                    var statusClass = b.Status switch
+                                    {
+                                        StudentAccommodationSystem.Models.BookingStatus.Approved => "bg-success-subtle text-success-emphasis",
+                                        StudentAccommodationSystem.Models.BookingStatus.Rejected => "bg-danger-subtle text-danger-emphasis",
+                                        StudentAccommodationSystem.Models.BookingStatus.Cancelled => "bg-secondary-subtle text-secondary-emphasis",
+                                        _ => "bg-warning-subtle text-warning-emphasis"
+                                    };
+                                }
+                                <span class="badge rounded-pill @statusClass">@b.Status</span>
+                            </td>
+                            <td class="py-3">@(b.RentalAgreement?.AgreementNumber ?? "—")</td>
+                            <td class="py-3">
+                                @if (b.Status == StudentAccommodationSystem.Models.BookingStatus.Approved)
+                                {
+                                    var ownerUser = b.Property.Owner?.User;
+                                    var ownerEmail = ownerUser?.Email;
+                                    var ownerPhone = !string.IsNullOrWhiteSpace(b.Property.ContactPhone)
+                                        ? b.Property.ContactPhone
+                                        : ownerUser?.PhoneNumber;
+
+                                    <div class="small">
+                                        <div class="fw-semibold mb-1">Owner contact</div>
+                                        @if (!string.IsNullOrWhiteSpace(ownerEmail))
+                                        {
+                                            <div><span class="text-muted">Email:</span> <a href="mailto:@ownerEmail">@ownerEmail</a></div>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(ownerPhone))
+                                        {
+                                            <div><span class="text-muted">Phone:</span> <a href="tel:@ownerPhone">@ownerPhone</a></div>
+                                        }
+                                        @if (string.IsNullOrWhiteSpace(ownerEmail) && string.IsNullOrWhiteSpace(ownerPhone))
+                                        {
+                                            <span class="text-muted">Owner has not added contact details.</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="small text-muted">Available after approval</span>
+                                }
+                            </td>
+                            <td class="py-3">
+                                @if (b.Status == StudentAccommodationSystem.Models.BookingStatus.Approved)
+                                {
+                                    var monthlyRent = b.RentalAgreement?.MonthlyRent ?? b.Room.MonthlyRent;
+                                    var deposit = b.RentalAgreement?.SecurityDeposit ?? b.Room.SecurityDeposit;
+                                    <div class="small">
+                                        <div><span class="text-muted">Monthly rent:</span> <strong>₹@monthlyRent.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</strong></div>
+                                        <div><span class="text-muted">Security deposit:</span> <strong>₹@deposit.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</strong></div>
+                                        @if (b.RentalAgreement?.Payments?.Any() == true)
+                                        {
+                                            <div class="fw-semibold mt-2 mb-1">Payment records</div>
+                                            @foreach (var payment in b.RentalAgreement.Payments.OrderByDescending(p => p.DueDate))
+                                            {
+                                                <div class="border-top pt-1 mt-1">
+                                                    @payment.Type: ₹@payment.Amount.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))
+                                                    <span class="badge @(payment.Status == StudentAccommodationSystem.Models.PaymentStatus.Paid ? "bg-success" : payment.Status == StudentAccommodationSystem.Models.PaymentStatus.Overdue ? "bg-danger" : "bg-warning text-dark")">@payment.Status</span>
+                                                    <div class="text-muted">Due: @payment.DueDate.ToString("dd MMM yyyy")</div>
+                                                    @if (!string.IsNullOrWhiteSpace(payment.PaymentMethod))
+                                                    {
+                                                        <div class="text-muted">Method: @payment.PaymentMethod</div>
+                                                    }
+                                                    @if (!string.IsNullOrWhiteSpace(payment.TransactionReference))
+                                                    {
+                                                        <div class="text-muted">Reference: @payment.TransactionReference</div>
+                                                    }
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="text-muted mt-2">No payment records have been added yet.</div>
+                                        }
+                                        <a asp-controller="Payment" asp-action="Index" class="btn btn-sm btn-outline-primary mt-2">View all payments</a>
+                                        <div class="text-muted mt-2">For UPI or bank transfer instructions, contact the owner using the details shown here.</div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="small text-muted">Available after booking approval</span>
+                                }
+                            </td>
+                            <td class="text-end px-3 py-3">
+                                @if (canDelete)
+                                {
+                                    <form asp-controller="Booking" asp-action="DeleteRequest" method="post" class="d-inline" onsubmit="return confirm('Delete this booking request? This action cannot be undone.');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@b.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger text-nowrap">
+                                            <span aria-hidden="true">&#128465;</span> Delete request
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="small text-muted">Active booking</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <p class="small text-muted mt-3 mb-0">Pending, rejected, and cancelled requests can be deleted. Approved bookings and bookings with rental agreements are protected.</p>
+    }
+</section>

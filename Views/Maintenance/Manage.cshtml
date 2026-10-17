@@ -1,0 +1,6 @@
+@model IEnumerable<StudentAccommodationSystem.Models.MaintenanceRequest>
+
+@{
+    ViewData["Title"] = "Manage Maintenance";
+}
+<h1>Manage maintenance</h1>@foreach(var m in Model){<div class="card mb-3"><div class="card-body"><div class="d-flex justify-content-between"><div><h5>@m.Title</h5><p>@m.Property.Name · @m.Room.RoomNumber · @m.Priority</p></div><span class="badge bg-secondary">@m.Status</span></div><p>@m.Description</p><form asp-action="UpdateStatus" method="post" class="d-flex gap-2"><input type="hidden" name="id" value="@m.Id"/><select name="status" class="form-select w-auto">@foreach(var s in Enum.GetValues<StudentAccommodationSystem.Models.MaintenanceStatus>()){<option value="@s">@s</option>}</select><button class="btn btn-primary">Update</button></form></div></div>}

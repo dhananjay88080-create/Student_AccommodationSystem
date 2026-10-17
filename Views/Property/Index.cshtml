@@ -1,0 +1,32 @@
+@model StudentAccommodationSystem.ViewModels.PropertySearchVm
+@{ ViewData["Title"] = "Find accommodation"; }
+<div class="listing-hero mb-4"><div><span class="eyebrow text-primary">EXPLORE STAYS</span><h1>Find your next home</h1><p>Search verified PGs, hostels and rental properties by location, budget and room preference.</p></div></div>
+<form asp-action="Index" method="get" class="market-search mb-4">
+    <div class="market-search-field"><label>Location</label><input asp-for="Location" placeholder="City or area" /></div>
+    <div class="market-search-field"><label>Property</label><input asp-for="Name" placeholder="Property name" /></div>
+    <div class="market-search-field"><label>Min rent</label><input asp-for="MinRent" type="number" placeholder="₹ 0" /></div>
+    <div class="market-search-field"><label>Max rent</label><input asp-for="MaxRent" type="number" placeholder="₹ 25,000" /></div>
+    <button class="btn btn-dark px-4" type="submit">Search</button>
+</form>
+<div class="d-flex flex-wrap gap-2 align-items-center mb-4"><span class="filter-label">Popular filters</span><span class="filter-chip">Single room</span><span class="filter-chip">Double sharing</span><span class="filter-chip">Furnished</span><span class="filter-chip">Budget friendly</span><span class="filter-chip">Near college</span></div>
+<div class="section-head mb-3"><div><span class="eyebrow text-primary">VERIFIED LISTINGS</span><h2>@Model.Results.Count stays available</h2></div><div class="sort-note">Fresh listings first</div></div>
+@if (!Model.Results.Any())
+{
+    <div class="empty-premium">
+        <h4>No approved stays available</h4>
+        <p>No properties currently match this search. Newly added properties remain hidden from student search until an administrator approves them.</p>
+        <p class="text-muted">If you have just added a property, sign in with an administrator account, open <strong>Admin &gt; Property approvals</strong>, and approve the property. Then refresh this page. If you used search filters, clear them to check again.</p>
+        <a class="btn btn-dark" asp-action="Index">Clear search</a>
+    </div>
+}
+else
+{
+<div class="row g-4">
+@foreach (var p in Model.Results)
+{
+    var img=p.Images.FirstOrDefault(x=>x.IsPrimary)?.ImageUrl ?? p.Images.FirstOrDefault()?.ImageUrl ?? "https://images.unsplash.com/photo-1560185008-b033106af5c3?auto=format&fit=crop&w=1000&q=85";
+    var rent=p.Rooms.Any()?p.Rooms.Min(r=>r.MonthlyRent):0;
+    <div class="col-md-6 col-xl-4"><article class="market-card h-100"><a asp-action="Details" asp-route-id="@p.Id" class="market-image-link"><img src="@img" class="market-image" alt="@p.Name" onerror="this.onerror=null;this.src='/images/dashboard-fallback.svg';"/><span class="verified-pill">✓ Approved</span><span class="photo-pill">▧ @p.Images.Count</span></a><div class="market-body"><div class="market-location">@p.City, @p.State</div><h3><a asp-action="Details" asp-route-id="@p.Id">@p.Name</a></h3><p class="market-description">@p.Description</p><div class="market-meta"><span>◉ @p.PropertyType</span><span>⌂ @p.Rooms.Count rooms</span></div><div class="market-card-footer"><div><small>Starting from</small><strong class="market-price">@("₹" + rent.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("en-IN")))</strong><small class="market-price-period">per month</small></div><a class="btn btn-view-stay btn-sm" asp-action="Details" asp-route-id="@p.Id">View stay</a></div></div></article></div>
+}
+</div>
+}

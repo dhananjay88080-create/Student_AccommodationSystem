@@ -1,0 +1,45 @@
+@model IList<StudentAccommodationSystem.Models.StudentProfile>
+@{
+    ViewData["Title"] = "My Students";
+}
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div>
+            <span class="eyebrow text-primary">OWNER MANAGEMENT</span>
+            <h1 class="mb-1">My students</h1>
+            <p class="text-muted mb-0">@ViewBag.OwnerStudentsNote</p>
+        </div>
+        <a class="btn btn-outline-primary" asp-action="Index">Back to dashboard</a>
+    </div>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="empty-premium">
+            <h4>No students to show yet</h4>
+            <p>Students appear here after a rental agreement is created for one of your properties.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 p-3 p-md-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Student profile ID</th><th>Account ID</th><th>Name</th><th>Email</th><th>University</th><th>Student number</th></tr></thead>
+                    <tbody>
+                    @foreach (var student in Model)
+                    {
+                        <tr>
+                            <td>@student.Id</td>
+                            <td><code>@student.UserId</code></td>
+                            <td>@(student.User?.FullName ?? "—")</td>
+                            <td>@(student.User?.Email ?? "—")</td>
+                            <td>@(string.IsNullOrWhiteSpace(student.University) ? "—" : student.University)</td>
+                            <td>@(string.IsNullOrWhiteSpace(student.StudentNumber) ? "—" : student.StudentNumber)</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

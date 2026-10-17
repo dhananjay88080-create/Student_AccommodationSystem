@@ -1,0 +1,6 @@
+@model IEnumerable<StudentAccommodationSystem.Models.Message>
+
+@{
+    ViewData["Title"] = "Messages";
+}
+<h1>Messages</h1>@foreach(var m in Model){<div class="card mb-2"><div class="card-body"><small>@m.SentAt.ToLocalTime() · @m.Sender.FullName</small><p class="mb-0 mt-1">@m.Body</p></div></div>}

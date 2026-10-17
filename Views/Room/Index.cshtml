@@ -1,0 +1,6 @@
+@model IEnumerable<StudentAccommodationSystem.Models.Room>
+
+@{
+    ViewData["Title"] = "Room Management";
+}
+<h1>Room management</h1><table class="table"><thead><tr><th>Room</th><th>Type</th><th>Capacity</th><th>Rent</th><th>Status</th><th></th></tr></thead><tbody>@foreach(var r in Model){<tr><td>@r.RoomNumber</td><td>@r.RoomType</td><td>@r.Capacity</td><td>₹@r.MonthlyRent.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</td><td>@r.Status</td><td><form asp-action="SetStatus" method="post" class="d-flex gap-1"><input type="hidden" name="id" value="@r.Id"/><select name="status" class="form-select form-select-sm">@foreach(var s in Enum.GetValues<StudentAccommodationSystem.Models.RoomStatus>()){<option value="@s">@s</option>}</select><button class="btn btn-sm btn-outline-primary">Save</button></form></td></tr>}</tbody></table>

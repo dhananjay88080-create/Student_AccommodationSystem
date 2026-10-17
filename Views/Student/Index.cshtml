@@ -1,0 +1,19 @@
+@model StudentAccommodationSystem.ViewModels.DashboardVm
+@{ ViewData["Title"] = "Student Dashboard"; }
+<div class="dashboard-page">
+    @await Html.PartialAsync("_PropertySlider")
+    <header class="dashboard-heading">
+        <div><span class="dashboard-eyebrow">YOUR STAYNEST</span><h1>Student dashboard</h1><p>Welcome back! Track your accommodation requests and manage your stay.</p></div>
+    </header>
+    <div class="row g-3 dashboard-stats">
+        <div class="col-md-4"><article class="dashboard-stat stat-orange"><span class="dashboard-stat-icon">▣</span><div><small>Pending bookings</small><strong>@Model.PendingBookings</strong><span>Accommodation requests</span></div></article></div>
+        <div class="col-md-4"><article class="dashboard-stat stat-green"><span class="dashboard-stat-icon">▤</span><div><small>Active agreements</small><strong>@Model.ActiveAgreements</strong><span>Currently staying</span></div></article></div>
+        <div class="col-md-4"><article class="dashboard-stat stat-blue"><span class="dashboard-stat-icon">⌁</span><div><small>Open maintenance</small><strong>@Model.PendingMaintenance</strong><span>Requests in progress</span></div></article></div>
+    </div>
+    <nav class="dashboard-actions" aria-label="Student actions">
+        <a class="dashboard-action-primary" asp-controller="Property" asp-action="Index"><span>⌕</span> Find accommodation <b>→</b></a>
+        <a class="dashboard-action" asp-controller="Booking" asp-action="MyBookings"><span>▣</span> My bookings</a>
+        <a class="dashboard-action" asp-controller="Payment" asp-action="Index"><span>▤</span> Payments</a>
+        <a class="dashboard-action" asp-controller="Maintenance" asp-action="Index"><span>⌁</span> Maintenance</a>
+    </nav>
+</div>

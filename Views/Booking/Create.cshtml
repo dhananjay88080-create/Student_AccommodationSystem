@@ -1,0 +1,6 @@
+@model StudentAccommodationSystem.ViewModels.BookingVm
+
+@{
+    ViewData["Title"] = "Request a room";
+}
+<h1>Request a room</h1><form method="post" class="col-lg-7"><div asp-validation-summary="All" class="text-danger"></div><input type="hidden" asp-for="RoomId"/><label asp-for="MoveIn" class="form-label"></label><input asp-for="MoveIn" class="form-control mb-3"/><label asp-for="MoveOut" class="form-label"></label><input asp-for="MoveOut" class="form-control mb-3"/><label asp-for="Message" class="form-label"></label><textarea asp-for="Message" class="form-control mb-3"></textarea><button class="btn btn-primary">Submit request</button></form>

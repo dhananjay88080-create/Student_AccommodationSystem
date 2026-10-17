@@ -1,0 +1,6 @@
+@model StudentAccommodationSystem.Models.Review
+
+@{
+    ViewData["Title"] = "Review property";
+}
+<h1>Review property</h1><form method="post" class="col-lg-6"><input type="hidden" asp-for="PropertyId"/><label asp-for="Rating" class="form-label"></label><select asp-for="Rating" class="form-select mb-3"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select><label asp-for="Comment" class="form-label"></label><textarea asp-for="Comment" class="form-control mb-3"></textarea><button class="btn btn-primary">Submit review</button></form>

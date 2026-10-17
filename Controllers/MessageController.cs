@@ -1,0 +1,5 @@
+using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Identity; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; using StudentAccommodationSystem.Data; using StudentAccommodationSystem.Models;
+namespace StudentAccommodationSystem.Controllers;
+[Authorize] public class MessageController(ApplicationDbContext db,UserManager<ApplicationUser> users):Controller
+{ public async Task<IActionResult> Index(){var u=await users.GetUserAsync(User);return View(await db.Messages.Where(x=>x.SenderId==u!.Id||x.RecipientId==u.Id).Include(x=>x.Sender).OrderByDescending(x=>x.SentAt).ToListAsync());}
+ [HttpPost,ValidateAntiForgeryToken] public async Task<IActionResult> Send(string recipientId,string body,string subject="Accommodation message"){var u=await users.GetUserAsync(User);if(u==null||string.IsNullOrWhiteSpace(body))return BadRequest();var t=new MessageThread{Subject=subject};t.Messages.Add(new Message{SenderId=u.Id,RecipientId=recipientId,Body=body});db.MessageThreads.Add(t);await db.SaveChangesAsync();return RedirectToAction(nameof(Index));}}

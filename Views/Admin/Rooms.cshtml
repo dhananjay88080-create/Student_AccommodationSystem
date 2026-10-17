@@ -1,0 +1,17 @@
+@model IList<StudentAccommodationSystem.Models.Room>
+@using StudentAccommodationSystem.Models
+@{ ViewData["Title"] = "Manage Rooms"; }
+<div class="room-management-page">
+    @if (TempData["Success"] is string success) { <div class="alert alert-success alert-dismissible fade show" role="alert">@success<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div> }
+    @if (TempData["Error"] is string error) { <div class="alert alert-warning alert-dismissible fade show" role="alert">@error<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div> }
+    <div class="room-management-heading"><div><span class="eyebrow text-primary">ADMIN WORKSPACE</span><h1>Manage rooms</h1><p class="text-muted mb-0">Review rooms across all owners, update status, or delete rooms.</p></div><div class="d-flex flex-wrap gap-2"><form asp-action="DeleteAllRooms" method="post" onsubmit="return confirm('Delete every room that has no booking, rental agreement, or maintenance history? Rooms with linked records will be preserved.');"><button class="btn btn-outline-danger" type="submit">Delete all eligible rooms</button></form><a class="btn btn-outline-secondary" asp-action="Index">Back to dashboard</a></div></div>
+    <div class="room-table-wrap table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>Room ID</th><th>Property</th><th>Owner</th><th>Room</th><th>Monthly rent</th><th>Status</th><th>Update status</th><th>Actions</th></tr></thead>
+            <tbody>
+            @if (Model.Count == 0) { <tr><td colspan="8" class="text-center text-muted py-5">No rooms have been added yet.</td></tr> }
+            @foreach (var room in Model) { <tr><td>@room.Id</td><td class="fw-semibold">@room.Property.Name</td><td>@room.Property.Owner.User.FullName</td><td>@room.RoomNumber <span class="text-muted">(@room.RoomType)</span></td><td><span class="room-rent">₹@room.MonthlyRent.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</span></td><td><span class="badge rounded-pill bg-light text-dark border">@room.Status</span></td><td><form asp-action="SetRoomStatus" method="post" class="room-status-form"><input type="hidden" name="id" value="@room.Id"/><select class="form-select form-select-sm" name="status" aria-label="Room status">@foreach (RoomStatus status in Enum.GetValues(typeof(RoomStatus))) { <option value="@status" selected="@(status == room.Status)">@status</option> }</select><button class="btn btn-sm btn-primary" type="submit">Save</button></form></td><td><form asp-action="DeleteRoom" method="post" onsubmit="return confirm('Delete this room? Rooms with booking, rental-agreement, or maintenance history cannot be deleted.');"><input type="hidden" name="id" value="@room.Id"/><button class="btn btn-sm btn-outline-danger" type="submit"><span aria-hidden="true">×</span> Delete</button></form></td></tr> }
+            </tbody>
+        </table>
+    </div>
+</div>

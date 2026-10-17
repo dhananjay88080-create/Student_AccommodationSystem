@@ -1,0 +1,12 @@
+@model StudentAccommodationSystem.Models.MaintenanceRequest
+
+@{
+    ViewData["Title"] = "New Maintenance Request";
+}
+<h1>Report maintenance</h1><form method="post" class="col-lg-7"><div asp-validation-summary="All" class="text-danger"></div><label asp-for="RoomId" class="form-label">Room</label><select asp-for="RoomId" class="form-select mb-3">
+    <option value="">-- Select Room --</option>
+    @foreach (var room in (IEnumerable<StudentAccommodationSystem.Models.Room>)ViewBag.Rooms)
+    {
+        <option value="@room.Id">@room.RoomNumber</option>
+    }
+</select><label asp-for="Title" class="form-label"></label><input asp-for="Title" class="form-control mb-3"/><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control mb-3"></textarea><label asp-for="Priority" class="form-label"></label><select asp-for="Priority" class="form-select mb-3"></select><button class="btn btn-primary">Submit request</button></form>

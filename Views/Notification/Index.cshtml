@@ -1,0 +1,6 @@
+@model IEnumerable<StudentAccommodationSystem.Models.Notification>
+
+@{
+    ViewData["Title"] = "Notifications";
+}
+<h1>Notifications</h1>@foreach(var n in Model){<div class="alert @(n.IsRead?"alert-light":"alert-primary")"><div class="d-flex justify-content-between"><span>@n.Message</span>@if(!n.IsRead){<form asp-action="MarkRead" method="post"><input type="hidden" name="id" value="@n.Id"/><button class="btn btn-sm btn-outline-primary">Mark read</button></form>}</div><small>@n.CreatedAt.ToLocalTime()</small></div>}

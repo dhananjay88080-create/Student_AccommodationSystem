@@ -1,0 +1,94 @@
+@model StudentAccommodationSystem.ViewModels.StudentPaymentsVm
+@using StudentAccommodationSystem.Models
+@using System.Globalization
+@{
+    ViewData["Title"] = "My Payments";
+    var culture = CultureInfo.GetCultureInfo("en-IN");
+    var paidTotal = Model.Payments.Where(p => p.Status == PaymentStatus.Paid).Sum(p => p.Amount);
+    var outstanding = Model.Payments.Where(p => p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Overdue).Sum(p => p.Amount);
+}
+<section class="container py-4 py-md-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <p class="text-uppercase small fw-semibold text-muted mb-1">Student dashboard</p>
+            <h1 class="h2 mb-1">My Payments</h1>
+            <p class="text-muted mb-0">Rent, deposits, payment history and owner contact details for your bookings.</p>
+        </div>
+        <a asp-controller="Booking" asp-action="MyBookings" class="btn btn-outline-primary">Back to My Bookings</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body"><div class="small text-muted">Active agreements</div><div class="fs-3 fw-bold">@Model.Agreements.Count(a => a.Status == AgreementStatus.Active)</div></div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body"><div class="small text-muted">Monthly rent (active)</div><div class="fs-3 fw-bold">₹@Model.Agreements.Where(a => a.Status == AgreementStatus.Active).Sum(a => a.MonthlyRent).ToString("N0", culture)</div></div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body"><div class="small text-muted">Total recorded as paid</div><div class="fs-3 fw-bold text-success">₹@paidTotal.ToString("N0", culture)</div></div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body"><div class="small text-muted">Recorded pending / overdue</div><div class="fs-3 fw-bold">₹@outstanding.ToString("N0", culture)</div></div></div></div>
+    </div>
+
+    <h2 class="h4 mb-3">Rent and deposit by booking</h2>
+    @if (!Model.Agreements.Any())
+    {
+        <div class="alert alert-light border rounded-4">
+            <h3 class="h5">No rental agreements yet</h3>
+            <p class="mb-2">Your payment overview will appear here after a booking is approved and a rental agreement is created.</p>
+            <a asp-controller="Property" asp-action="Index" class="btn btn-primary btn-sm">Find a PG</a>
+        </div>
+    }
+    else
+    {
+        @foreach (var agreement in Model.Agreements)
+        {
+            var ownerUser = agreement.Property.Owner?.User;
+            var ownerEmail = ownerUser?.Email;
+            var ownerPhone = !string.IsNullOrWhiteSpace(agreement.Property.ContactPhone) ? agreement.Property.ContactPhone : ownerUser?.PhoneNumber;
+            <div class="card border-0 shadow-sm rounded-4 mb-3">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+                        <div><h3 class="h5 mb-1">@agreement.Property.Name — Room @agreement.Room.RoomNumber</h3><div class="small text-muted">Agreement @agreement.AgreementNumber · @agreement.Status</div></div>
+                        <span class="badge @(agreement.Status == AgreementStatus.Active ? "bg-success-subtle text-success-emphasis" : "bg-secondary-subtle text-secondary-emphasis") align-self-start">@agreement.Status</span>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4"><div class="border rounded-3 p-3 h-100"><div class="small text-muted">Monthly rent</div><div class="fs-5 fw-semibold">₹@agreement.MonthlyRent.ToString("N0", culture)</div></div></div>
+                        <div class="col-md-4"><div class="border rounded-3 p-3 h-100"><div class="small text-muted">Security deposit</div><div class="fs-5 fw-semibold">₹@agreement.SecurityDeposit.ToString("N0", culture)</div></div></div>
+                        <div class="col-md-4"><div class="border rounded-3 p-3 h-100"><div class="small text-muted">Payment due day</div><div class="fs-5 fw-semibold">@agreement.PaymentDueDay of each month</div></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <h4 class="h6">Owner payment help</h4>
+                        <p class="small text-muted mb-2">Ask the owner for their UPI ID or bank transfer instructions. This app has not recorded UPI/bank instructions for this owner, so verify payment details directly before transferring money.</p>
+                        @if (!string.IsNullOrWhiteSpace(ownerEmail)) { <div class="small">Email: <a href="mailto:@ownerEmail">@ownerEmail</a></div> }
+                        @if (!string.IsNullOrWhiteSpace(ownerPhone)) { <div class="small">Phone: <a href="tel:@ownerPhone">@ownerPhone</a></div> }
+                        @if (string.IsNullOrWhiteSpace(ownerEmail) && string.IsNullOrWhiteSpace(ownerPhone)) { <div class="small text-muted">Owner contact details are not available.</div> }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    <h2 class="h4 mt-4 mb-3">Payment history and receipts</h2>
+    @if (!Model.Payments.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4 text-center">
+            <div class="fs-1 mb-2">▤</div><h3 class="h5">No payment records yet</h3>
+            <p class="text-muted mb-0">Your owner or administrator has not added any payment records. No payment is marked as paid on this page. Contact the owner for instructions.</p>
+        </div></div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden"><div class="table-responsive"><table class="table align-middle mb-0">
+            <thead class="table-light"><tr><th class="px-3">Property / agreement</th><th>Type</th><th>Amount</th><th>Due date</th><th>Paid date</th><th>Method / reference</th><th>Status</th><th>Receipt</th></tr></thead>
+            <tbody>
+            @foreach (var payment in Model.Payments)
+            {
+                <tr>
+                    <td class="px-3">@payment.RentalAgreement.Property.Name<div class="small text-muted">@payment.RentalAgreement.AgreementNumber</div></td>
+                    <td>@payment.Type</td><td class="text-nowrap">₹@payment.Amount.ToString("N0", culture)</td>
+                    <td>@payment.DueDate.ToString("dd MMM yyyy")</td><td>@(payment.PaymentDate?.ToString("dd MMM yyyy") ?? "—")</td>
+                    <td><div>@(string.IsNullOrWhiteSpace(payment.PaymentMethod) ? "—" : payment.PaymentMethod)</div><div class="small text-muted">@(string.IsNullOrWhiteSpace(payment.TransactionReference) ? "" : payment.TransactionReference)</div></td>
+                    <td><span class="badge @(payment.Status == PaymentStatus.Paid ? "bg-success" : payment.Status == PaymentStatus.Overdue || payment.Status == PaymentStatus.Failed ? "bg-danger" : "bg-warning text-dark")">@payment.Status</span></td>
+                    <td>@(string.IsNullOrWhiteSpace(payment.ReceiptNumber) ? "—" : payment.ReceiptNumber)</td>
+                </tr>
+            }
+            </tbody>
+        </table></div></div>
+    }
+    <p class="small text-muted mt-3">The paid total and outstanding figure above are calculated only from payment records already entered in StayNest. They do not independently verify bank transfers.</p>
+</section>

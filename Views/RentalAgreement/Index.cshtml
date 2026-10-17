@@ -1,0 +1,6 @@
+@model IEnumerable<StudentAccommodationSystem.Models.RentalAgreement>
+
+@{
+    ViewData["Title"] = "Rental Agreements";
+}
+<h1>Rental agreements</h1><table class="table"><thead><tr><th>Agreement</th><th>Property</th><th>Room</th><th>Dates</th><th>Rent</th><th>Status</th></tr></thead><tbody>@foreach(var a in Model){<tr><td>@a.AgreementNumber</td><td>@a.Property.Name</td><td>@a.Room.RoomNumber</td><td>@a.StartDate.ToShortDateString() - @a.EndDate.ToShortDateString()</td><td>₹@a.MonthlyRent.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</td><td>@a.Status</td></tr>}</tbody></table>

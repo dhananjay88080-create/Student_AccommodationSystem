@@ -1,0 +1,6 @@
+@model IEnumerable<StudentAccommodationSystem.Models.MaintenanceRequest>
+
+@{
+    ViewData["Title"] = "Maintenance";
+}
+<div class="d-flex justify-content-between"><h1>Maintenance requests</h1><a class="btn btn-primary" asp-action="Create">New request</a></div><table class="table"><thead><tr><th>Title</th><th>Room</th><th>Priority</th><th>Status</th><th>Created</th></tr></thead><tbody>@foreach(var m in Model){<tr><td>@m.Title</td><td>@m.Room.RoomNumber</td><td>@m.Priority</td><td>@m.Status</td><td>@m.CreatedAt.ToShortDateString()</td></tr>}</tbody></table>

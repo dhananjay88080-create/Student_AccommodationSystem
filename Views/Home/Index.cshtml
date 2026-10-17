@@ -1,0 +1,67 @@
+@model StudentAccommodationSystem.ViewModels.HomeViewModel
+@{ ViewData["Title"] = "Find your perfect stay"; }
+
+<section class="home-hero mb-5">
+    <div class="hero-backdrop"></div>
+    <div class="hero-content">
+        <span class="hero-kicker">STAYNEST • STUDENT &amp; PG LIVING</span>
+        <h1>Find a place you’ll<br /><em>love to live.</em></h1>
+        <p>Discover comfortable rooms, trusted properties and flexible stays near your college or workplace.</p>
+        <form asp-controller="Property" asp-action="Index" method="get" class="hero-search">
+            <div class="hero-search-field"><span>⌖</span><div><label>Location</label><input name="Location" placeholder="City or area" /></div></div>
+            <div class="hero-search-field"><span>⌂</span><div><label>Property</label><input name="Name" placeholder="PG, hostel or property" /></div></div>
+            <div class="hero-search-field"><span>₹</span><div><label>Budget</label><input name="MaxRent" type="number" placeholder="Max monthly rent" /></div></div>
+            <button class="hero-search-btn" type="submit">Search stays <span>→</span></button>
+        </form>
+        <div class="hero-trust"><span>✓ Verified properties</span><span>✓ Real photos</span><span>✓ Direct booking</span></div>
+    </div>
+</section>
+
+<section class="quick-actions mb-5">
+    <div class="section-head"><div><span class="eyebrow text-primary">QUICK ACTIONS</span><h2>Everything starts here</h2></div></div>
+    <div class="quick-grid">
+        <a asp-controller="Property" asp-action="Index" class="quick-card"><div class="quick-icon">⌕</div><div><strong>Find a PG</strong><small>Browse verified rooms &amp; properties</small></div><span>→</span></a>
+        <a asp-controller="Property" asp-action="Create" class="quick-card"><div class="quick-icon">＋</div><div><strong>List your property</strong><small>Showcase rooms to students</small></div><span>→</span></a>
+        <a asp-controller="Booking" asp-action="MyBookings" class="quick-card"><div class="quick-icon">▣</div><div><strong>My bookings</strong><small>Track requests and stays</small></div><span>→</span></a>
+        <a asp-controller="Notification" asp-action="Index" class="quick-card"><div class="quick-icon">♢</div><div><strong>Get support</strong><small>Stay updated on your account</small></div><span>→</span></a>
+    </div>
+</section>
+
+<section class="mb-5">
+    <div class="section-head"><div><span class="eyebrow text-primary">HANDPICKED FOR YOU</span><h2>Featured stays</h2><p>Explore approved accommodation with real property images.</p></div><a class="text-link" asp-controller="Property" asp-action="Index">View all stays →</a></div>
+    @if (!Model.FeaturedProperties.Any())
+    {
+        <div class="empty-premium"><h4>New stays are coming soon</h4><p>Approved properties will appear here automatically.</p><a asp-controller="Property" asp-action="Index" class="btn btn-dark">Explore accommodation</a></div>
+    }
+    else
+    {
+        <div class="row g-4">
+        @foreach (var p in Model.FeaturedProperties)
+        {
+            var img = p.Images.FirstOrDefault(x => x.IsPrimary)?.ImageUrl ?? p.Images.FirstOrDefault()?.ImageUrl ?? "https://images.unsplash.com/photo-1560185008-b033106af5c3?auto=format&fit=crop&w=1000&q=85";
+            var rent = p.Rooms.Any() ? p.Rooms.Min(r => r.MonthlyRent) : 0;
+            <div class="col-md-6 col-xl-4">
+                <article class="market-card h-100">
+                    <a asp-controller="Property" asp-action="Details" asp-route-id="@p.Id" class="market-image-link">
+                        <img src="@img" class="market-image" alt="@p.Name" onerror="this.onerror=null;this.src='/images/dashboard-fallback.svg';" />
+                        <span class="verified-pill">✓ Verified</span>
+                        <span class="photo-pill">▧ @p.Images.Count</span>
+                    </a>
+                    <div class="market-body">
+                        <div class="market-location">@p.City, @p.State</div>
+                        <h3><a asp-controller="Property" asp-action="Details" asp-route-id="@p.Id">@p.Name</a></h3>
+                        <div class="market-meta"><span>◉ @p.PropertyType</span><span>⌂ @p.Rooms.Count rooms</span></div>
+                        <div class="market-card-footer"><div><small>Starting from</small><strong class="market-price">@("₹" + rent.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("en-IN")))</strong><small class="market-price-period">per month</small></div><a class="btn btn-view-stay btn-sm" asp-controller="Property" asp-action="Details" asp-route-id="@p.Id">View stay</a></div>
+                    </div>
+                </article>
+            </div>
+        }
+        </div>
+    }
+</section>
+
+<section class="trust-strip mb-5">
+    <div><strong>Real homes.</strong><span>Real photos and property information.</span></div>
+    <div><strong>Search your way.</strong><span>Filter by location, rent and room preferences.</span></div>
+    <div><strong>Manage everything.</strong><span>Bookings, rent, maintenance and messages in one place.</span></div>
+</section>

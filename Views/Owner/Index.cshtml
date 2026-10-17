@@ -1,0 +1,28 @@
+@model StudentAccommodationSystem.ViewModels.DashboardVm
+@{ ViewData["Title"] = "Owner Dashboard"; }
+<div class="dashboard-page">
+    @await Html.PartialAsync("_PropertySlider")
+    <header class="dashboard-heading dashboard-heading-row">
+        <div><span class="dashboard-eyebrow">OWNER WORKSPACE</span><h1>Owner dashboard</h1><p>Manage your properties, rooms, bookings and rental income.</p></div>
+        <a class="dashboard-action-primary" asp-controller="Property" asp-action="Create"><span>＋</span> Add property</a>
+    </header>
+    @if (TempData["Success"] is string success) { <div class="alert alert-success rounded-4">@success</div> }
+    @if (TempData["Error"] is string error) { <div class="alert alert-warning rounded-4">@error</div> }
+    <div class="row g-3 dashboard-stats">
+        @foreach (var x in new[]{("Properties",Model.TotalProperties,"⌂","stat-blue"),("Rooms",Model.TotalRooms,"▤","stat-green"),("Available rooms",Model.AvailableRooms,"✓","stat-orange"),("Occupied rooms",Model.OccupiedRooms,"▣","stat-violet"),("Pending requests",Model.PendingBookings,"◷","stat-orange"),("Active tenants",Model.ActiveTenants,"♙","stat-green"),("Open maintenance",Model.PendingMaintenance,"⌁","stat-blue")})
+        { <div class="col-6 col-xl-3"><article class="dashboard-stat compact-stat @x.Item4"><span class="dashboard-stat-icon">@x.Item3</span><div><small>@x.Item1</small><strong>@x.Item2</strong></div></article></div> }
+        <div class="col-6 col-xl-3"><article class="dashboard-stat compact-stat stat-green"><span class="dashboard-stat-icon">₹</span><div><small>Paid rent total</small><strong>₹@Model.MonthlyIncome.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</strong></div></article></div>
+    </div>
+    <section class="dashboard-panel mt-4">
+        <div class="dashboard-panel-heading"><div><h2>My properties</h2><p>Track approval status and manage each stay.</p></div><a class="dashboard-text-link" asp-controller="Property" asp-action="Create">+ Add property</a></div>
+        <p class="small text-muted">New properties remain pending until an administrator approves them.</p>
+        @if (!Model.OwnerProperties.Any()) { <div class="dashboard-empty">You haven't added any properties yet. <a asp-controller="Property" asp-action="Create">Add your first property</a>.</div> }
+        else {
+        <div class="table-responsive"><table class="table dashboard-table align-middle"><thead><tr><th>Property</th><th>Location</th><th>Rooms</th><th>Status</th><th class="text-end">Actions</th></tr></thead><tbody>
+        @foreach (var property in Model.OwnerProperties) {
+        <tr><td class="fw-semibold">@property.Name</td><td>@property.City, @property.State</td><td>@property.Rooms.Count</td><td><span class="badge rounded-pill @(property.Status == "Approved" ? "bg-success-subtle text-success-emphasis" : "bg-warning-subtle text-warning-emphasis")">@property.Status</span></td><td><div class="d-flex flex-wrap justify-content-end gap-2"><a class="btn btn-sm btn-outline-primary" asp-controller="Property" asp-action="Details" asp-route-id="@property.Id">View stay</a><a class="btn btn-sm btn-primary" asp-controller="Owner" asp-action="Rooms">Manage rooms</a></div></td></tr>
+        }</tbody></table></div>
+        }
+    </section>
+    <nav class="dashboard-actions" aria-label="Owner actions"><a class="dashboard-action" asp-controller="Booking" asp-action="OwnerRequests">▣ Booking requests</a><a class="dashboard-action" asp-controller="Maintenance" asp-action="Manage">⌁ Maintenance</a><a class="dashboard-action" asp-controller="Payment" asp-action="Index">₹ Payments</a><a class="dashboard-action" asp-controller="Owner" asp-action="Rooms">▤ Manage rooms</a><a class="dashboard-action" asp-controller="Owner" asp-action="Students">♙ My students</a></nav>
+</div>

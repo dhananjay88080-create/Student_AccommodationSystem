@@ -1,0 +1,19 @@
+@model StudentAccommodationSystem.ViewModels.DashboardVm
+@{ ViewData["Title"] = "Admin Dashboard"; }
+<div class="dashboard-page">
+    @await Html.PartialAsync("_PropertySlider")
+    <header class="dashboard-heading dashboard-heading-row"><div><span class="dashboard-eyebrow">STAYNEST CONTROL CENTER</span><h1>Administrator dashboard</h1><p>Monitor platform activity and keep listings, users and stays running smoothly.</p></div><a class="dashboard-action-primary" asp-action="Properties">Review approvals <b>→</b></a></header>
+    <div class="row g-3 dashboard-stats">
+        @foreach (var x in new[]{("Students",Model.TotalStudents,"♙","stat-blue"),("Owners",Model.TotalOwners,"♧","stat-green"),("Properties",Model.TotalProperties,"⌂","stat-orange"),("Rooms",Model.TotalRooms,"▤","stat-violet"),("Available rooms",Model.AvailableRooms,"✓","stat-green"),("Occupied rooms",Model.OccupiedRooms,"▣","stat-blue"),("Pending approvals",Model.PendingApprovals,"◷","stat-orange"),("Active agreements",Model.ActiveAgreements,"▧","stat-violet"),("Open maintenance",Model.PendingMaintenance,"⌁","stat-blue")})
+        { <div class="col-6 col-xl-3"><article class="dashboard-stat compact-stat @x.Item4"><span class="dashboard-stat-icon">@x.Item3</span><div><small>@x.Item1</small><strong>@x.Item2</strong></div></article></div> }
+        <div class="col-6 col-xl-3"><article class="dashboard-stat compact-stat stat-green"><span class="dashboard-stat-icon">₹</span><div><small>Total paid</small><strong>₹@Model.TotalPayments.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</strong></div></article></div>
+    </div>
+    <section class="dashboard-panel mt-4"><div class="dashboard-panel-heading"><div><h2>Platform management</h2><p>Quick access to the most-used administration tools.</p></div></div>
+        <div class="admin-quick-grid">
+            <a asp-action="Properties"><span class="quick-symbol stat-orange">⌂</span><strong>Property approvals</strong><small>Review new listings</small><b>→</b></a>
+            <a asp-action="Students"><span class="quick-symbol stat-blue">♙</span><strong>Manage students</strong><small>View student accounts</small><b>→</b></a>
+            <a asp-action="Owners"><span class="quick-symbol stat-green">♧</span><strong>Manage owners</strong><small>View owner accounts</small><b>→</b></a>
+            <a asp-action="Rooms"><span class="quick-symbol stat-violet">▤</span><strong>Manage rooms</strong><small>Review room inventory</small><b>→</b></a>
+        </div>
+    </section>
+</div>

@@ -1,0 +1,46 @@
+@model IList<StudentAccommodationSystem.Models.ApplicationUser>
+@{ ViewData["Title"] = "Manage students"; }
+<div class="container py-4 account-management-page">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <div class="text-uppercase small fw-semibold text-primary mb-2">Admin / Account management</div>
+            <h1 class="h2 mb-2">Manage students</h1>
+            <p class="text-muted mb-0">Student account IDs, contact details and access status.</p>
+        </div>
+        <span class="badge rounded-pill text-bg-light border px-3 py-2">Account controls v2</span>
+    </div>
+    @if (TempData["Success"] is string success) { <div class="alert alert-success" role="status">@success</div> }
+    @if (TempData["Error"] is string error) { <div class="alert alert-danger" role="alert">@error</div> }
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light"><tr><th class="ps-3">Account ID</th><th>Name</th><th>Email</th><th>Status</th><th class="text-end pe-3">Action</th></tr></thead>
+                <tbody>
+                @if (!Model.Any()) {
+                    <tr><td colspan="5" class="text-center py-5 text-muted">No students found.</td></tr>
+                } else {
+                    @foreach (var account in Model.OrderBy(x => x.FullName)) {
+                        <tr>
+                            <td class="ps-3"><code class="small">@account.Id</code></td>
+                            <td class="fw-semibold">@account.FullName</td>
+                            <td>@account.Email</td>
+                            <td><span class="badge rounded-pill @(account.IsActive ? "text-bg-success" : "text-bg-secondary")">@(account.IsActive ? "Active" : "Disabled")</span></td>
+                            <td class="text-end pe-3">
+                                <form asp-action="SetUserActive" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@account.Id" />
+                                    <input type="hidden" name="isActive" value="@(!account.IsActive ? "true" : "false")" />
+                                    <button class="btn btn-sm rounded-pill px-3 @(account.IsActive ? "btn-outline-danger" : "btn-success")" type="submit">
+                                        <i class="bi @(account.IsActive ? "bi-person-slash" : "bi-person-check") me-1"></i>@(account.IsActive ? "Disable" : "Enable")
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <a class="btn btn-outline-secondary rounded-pill mt-4" asp-action="Index">Back to dashboard</a>
+</div>

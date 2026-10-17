@@ -1,0 +1,6 @@
+@model IEnumerable<StudentAccommodationSystem.Models.Booking>
+
+@{
+    ViewData["Title"] = "Booking requests";
+}
+<h1>Booking requests</h1>@foreach(var b in Model){<div class="card mb-3"><div class="card-body d-flex justify-content-between"><div><h5>@b.Property.Name — @b.Room.RoomNumber</h5><p>@b.Student.User.FullName · @b.RequestedMoveIn.ToShortDateString() to @b.RequestedMoveOut.ToShortDateString()</p><span class="badge bg-secondary">@b.Status</span></div>@if(b.Status==StudentAccommodationSystem.Models.BookingStatus.Pending){<div class="d-flex gap-2"><form asp-action="Approve" method="post"><input type="hidden" name="id" value="@b.Id"/><button class="btn btn-success">Approve</button></form><form asp-action="Reject" method="post"><input type="hidden" name="id" value="@b.Id"/><button class="btn btn-outline-danger">Reject</button></form></div>}</div></div>}

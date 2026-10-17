@@ -1,0 +1,6 @@
+@model IEnumerable<StudentAccommodationSystem.Models.Payment>
+
+@{
+    ViewData["Title"] = "Payments";
+}
+<h1>Payments</h1><table class="table"><thead><tr><th>Agreement</th><th>Type</th><th>Amount</th><th>Due</th><th>Paid</th><th>Status</th></tr></thead><tbody>@foreach(var p in Model){<tr><td>@p.RentalAgreement.AgreementNumber</td><td>@p.Type</td><td>₹@p.Amount.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</td><td>@p.DueDate.ToShortDateString()</td><td>@(p.PaymentDate?.ToShortDateString()??"—")</td><td>@p.Status</td></tr>}</tbody></table>
